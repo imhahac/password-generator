@@ -5,7 +5,8 @@
   <title>Password Generator</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f5f7fa; }
-    fieldset { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; background: #fff; }
+    .container { display: flex; gap: 20px; }
+    fieldset { border: 1px solid #ccc; padding: 15px; background: #fff; flex: 1; }
     legend { font-weight: bold; padding: 0 10px; }
     label { display: block; margin-top: 8px; }
     input, select, textarea { margin-top: 5px; }
@@ -21,37 +22,48 @@
     #validation { color: red; margin-top: 10px; }
     #suggestion { color: green; margin-top: 5px; }
     #strength { font-weight: bold; margin-top: 10px; }
+    /* 顏色分類 */
+    .num { color: blue; }
+    .upper { color: green; }
+    .lower { color: brown; }
+    .symbol { color: red; }
+    .special { color: purple; }
+    .custom { color: orange; }
   </style>
 </head>
 <body>
   <h1>🔑 Password Generator / 密碼產生器</h1>
 
-  <fieldset>
-    <legend>Basic Settings / 基本設定</legend>
-    <label><input type="checkbox" id="numbers" onchange="updatePreview()"> Numbers (0-9) / 數字</label>
-    <label><input type="checkbox" id="uppercase" onchange="updatePreview()"> Uppercase Letters (A-Z) / 大寫字母</label>
-    <label><input type="checkbox" id="lowercase" onchange="updatePreview()"> Lowercase Letters (a-z) / 小寫字母</label>
-    <label><input type="checkbox" id="symbols" onchange="updatePreview()"> Common Symbols (!@#$%^&*) / 常用符號</label>
-    <label><input type="checkbox" id="special" onchange="updatePreview()"> Special Symbols (+-,.:;=~?`'"|\<>()[]{}) / 特殊符號</label>
-    <label>Custom Characters / 自訂字元:
-      <input type="text" id="custom" placeholder="Enter custom characters / 輸入自訂字元" oninput="updatePreview()">
-    </label>
-  </fieldset>
+  <div class="container">
+    <!-- 左邊 Basic Settings -->
+    <fieldset>
+      <legend>Basic Settings / 基本設定</legend>
+      <label><input type="checkbox" id="numbers" checked onchange="updatePreview()"> Numbers (0-9) / 數字</label>
+      <label><input type="checkbox" id="uppercase" checked onchange="updatePreview()"> Uppercase Letters (A-Z) / 大寫字母</label>
+      <label><input type="checkbox" id="lowercase" checked onchange="updatePreview()"> Lowercase Letters (a-z) / 小寫字母</label>
+      <label><input type="checkbox" id="symbols" onchange="updatePreview()"> Common Symbols (!@#$%^&*) / 常用符號</label>
+      <label><input type="checkbox" id="special" onchange="updatePreview()"> Special Symbols (+-,.:;=~?`'"|\<>()[]{}) / 特殊符號</label>
+      <label>Custom Characters / 自訂字元:
+        <input type="text" id="custom" placeholder="Enter custom characters / 輸入自訂字元" oninput="updatePreview()">
+      </label>
+    </fieldset>
 
-  <fieldset>
-    <legend>Advanced Settings / 進階設定</legend>
-    <label><input type="checkbox" id="shuffle"> Shuffle (randomize order) / 洗牌</label>
-    <label><input type="checkbox" id="excludeDefault" checked> Exclude similar characters (i l I 1 o O 0 2 Z 8 B) / 去除相似字</label>
-    <label>Exclude Custom / 去除自訂字:
-      <input type="text" id="excludeCustom" placeholder="Enter characters to exclude / 輸入要排除的字元" oninput="updatePreview()">
-    </label>
-    <label>Fixed Prefix (1-5 chars) / 固定開頭碼:
-      <input type="text" id="prefix" maxlength="5" oninput="updatePreview()">
-    </label>
-    <label>Fixed Suffix / 固定結尾碼:
-      <input type="text" id="suffix" oninput="updatePreview()">
-    </label>
-  </fieldset>
+    <!-- 右邊 Advanced Settings -->
+    <fieldset>
+      <legend>Advanced Settings / 進階設定</legend>
+      <label><input type="checkbox" id="shuffle"> Shuffle (randomize order) / 洗牌</label>
+      <label><input type="checkbox" id="excludeDefault" checked> Exclude similar characters (i l I 1 o O 0 2 Z 8 B) / 去除相似字</label>
+      <label>Exclude Custom / 去除自訂字:
+        <input type="text" id="excludeCustom" placeholder="Enter characters to exclude / 輸入要排除的字元" oninput="updatePreview()">
+      </label>
+      <label>Fixed Prefix (1-5 chars) / 固定開頭碼:
+        <input type="text" id="prefix" maxlength="5" oninput="updatePreview()">
+      </label>
+      <label>Fixed Suffix / 固定結尾碼:
+        <input type="text" id="suffix" oninput="updatePreview()">
+      </label>
+    </fieldset>
+  </div>
 
   <fieldset>
     <legend>Generation Settings / 產生設定</legend>
@@ -74,6 +86,10 @@
   <div id="validation"></div>
   <div id="suggestion"></div>
   <div id="strength"></div>
+  <div style="width:100%; background:#ddd; height:10px; border-radius:5px; margin-top:5px;">
+  <div id="strengthBar" style="height:10px; width:0%; border-radius:5px;"></div>
+</div>
+
   <div class="output" id="output"></div>
 
   <script src="script.js"></script>

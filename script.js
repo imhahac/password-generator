@@ -22,11 +22,24 @@ function getCharPool() {
   return chars;
 }
 
+// 顏色分類顯示
+function colorizeChar(c) {
+  if ("0123456789".includes(c)) return `<span class="num">${c}</span>`;
+  if ("ABCDEFGHIJKLMNOPQRSTUVWXYZ".includes(c)) return `<span class="upper">${c}</span>`;
+  if ("abcdefghijklmnopqrstuvwxyz".includes(c)) return `<span class="lower">${c}</span>`;
+  if ("!@#$%^&*".includes(c)) return `<span class="symbol">${c}</span>`;
+  if ("+-.:;=~?`'\"|\\/<>()[]{}".includes(c)) return `<span class="special">${c}</span>`;
+  return `<span class="custom">${c}</span>`;
+}
+
 function updatePreview() {
   const chars = getCharPool();
-  document.getElementById("preview").textContent = chars
-    ? "Character Pool / 字元池: " + chars
-    : "Character Pool / 字元池: (None selected / 尚未選擇)";
+  if (chars) {
+    const colored = chars.split("").map(colorizeChar).join("");
+    document.getElementById("preview").innerHTML = "Character Pool / 字元池: " + colored;
+  } else {
+    document.getElementById("preview").textContent = "Character Pool / 字元池: (None selected / 尚未選擇)";
+  }
   validateSettings();
   evaluateStrength();
 }
@@ -67,22 +80,37 @@ function evaluateStrength() {
 
   if (!chars) {
     strength.textContent = "";
+    document.getElementById("strengthBar").style.width = "0%";
     return;
   }
 
   const poolSize = chars.length;
   const score = Math.log2(poolSize) * length; // 熵值近似計算
 
+  let level = "";
+  let percent = 0;
+  let color = "";
+
   if (score < 40) {
-    strength.textContent = "Security Strength: Weak 🔴 / 安全性評分：弱";
-    strength.style.color = "red";
+    level = "Weak 🔴 / 弱";
+    percent = 33;
+    color = "red";
   } else if (score < 80) {
-    strength.textContent = "Security Strength: Medium 🟡 / 安全性評分：中";
-    strength.style.color = "orange";
+    level = "Medium 🟡 / 中";
+    percent = 66;
+    color = "orange";
   } else {
-    strength.textContent = "Security Strength: Strong 🟢 / 安全性評分：強";
-    strength.style.color = "green";
+    level = "Strong 🟢 / 強";
+    percent = 100;
+    color = "green";
   }
+
+  strength.textContent = "Security Strength: " + level;
+  strength.style.color = color;
+
+  const bar = document.getElementById("strengthBar");
+  bar.style.width = percent + "%";
+  bar.style.backgroundColor = color;
 }
 
 function shuffleString(str) {
@@ -117,7 +145,9 @@ function generate() {
       pwd = shuffleString(pwd);
     }
     pwd = prefix + pwd + suffix;
-    resultHTML += `<div class="pwd">${pwd}</div>`;
+    // 即時顯示顏色分類
+    const coloredPwd = pwd.split("").map(colorizeChar).join("");
+    resultHTML += `<div class="pwd">${coloredPwd}</div>`;
   }
 
   document.getElementById("output").innerHTML = resultHTML;
@@ -150,9 +180,9 @@ function downloadPasswords() {
 function resetAll() {
   document.getElementById("length").value = 12;
   document.getElementById("count").value = 5;
-  document.getElementById("numbers").checked = false;
-  document.getElementById("uppercase").checked = false;
-  document.getElementById("lowercase").checked = false;
+  document.getElementById("numbers").checked = true;   // 預設勾選
+  document.getElementById("uppercase").checked = true; // 預設勾選
+  document.getElementById("lowercase").checked = true; // 預設勾選
   document.getElementById("symbols").checked = false;
   document.getElementById("special").checked = false;
   document.getElementById("custom").value = "";
@@ -165,5 +195,11 @@ function resetAll() {
   document.getElementById("validation").textContent = "";
   document.getElementById("suggestion").textContent = "";
   document.getElementById("strength").textContent = "";
-  updatePreview();
+  document.getElementById("strengthBar").style.width = "0%";
+  updatePreview(); // 重設後立即更新字元池
 }
+
+// 初始化：載入頁面時立即更新字元池
+window.onload = function() {
+  updatePreview();
+};
