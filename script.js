@@ -7,7 +7,7 @@ function getCharPool() {
   if (document.getElementById("special").checked) chars += "+-.:;=~?`'\"|\\/<>()[]{}";
   chars += document.getElementById("custom").value;
 
-  // 去除相似字
+  // 去除預設相似字
   if (document.getElementById("excludeDefault").checked) {
     const exclude = "ilI1oO02Z8B";
     chars = chars.split("").filter(c => !exclude.includes(c)).join("");
@@ -24,7 +24,9 @@ function getCharPool() {
 
 function updatePreview() {
   const chars = getCharPool();
-  document.getElementById("preview").textContent = chars ? "字元池: " + chars : "字元池: (尚未選擇)";
+  document.getElementById("preview").textContent = chars
+    ? "Character Pool / 字元池: " + chars
+    : "Character Pool / 字元池: (None selected / 尚未選擇)";
   validateSettings();
   evaluateStrength();
 }
@@ -41,20 +43,20 @@ function validateSettings() {
 
   const reserved = prefix.length + suffix.length;
   if (reserved > length) {
-    validation.textContent = `❌ 密碼長度不足！目前長度 ${length}，但固定開頭(${prefix.length}) + 固定結尾(${suffix.length}) = ${reserved}。請增加密碼長度或縮短固定碼。`;
+    validation.textContent = `❌ Length too short! 密碼長度不足 (${length}), reserved (${reserved}).`;
   } else if (reserved === length) {
-    validation.textContent = `⚠️ 密碼長度剛好等於固定碼長度，將不會有隨機字元。`;
+    validation.textContent = `⚠️ Length equals reserved, no random chars.`;
   }
 
   if (length < 8) {
-    suggestion.textContent = "建議密碼長度至少 8 位以上，提升安全性。";
+    suggestion.textContent = "🔒 Suggest length >= 8 for better security.";
   } else if (length >= 16) {
-    suggestion.textContent = "👍 密碼長度足夠，安全性較佳。";
+    suggestion.textContent = "👍 Strong length, good security.";
   }
 
   const chars = getCharPool();
   if (!chars) {
-    suggestion.textContent = "請至少選擇一種字元類型或輸入自訂字元。";
+    suggestion.textContent = "⚠️ Please select at least one character type.";
   }
 }
 
@@ -69,16 +71,16 @@ function evaluateStrength() {
   }
 
   const poolSize = chars.length;
-  const score = poolSize * length;
+  const score = Math.log2(poolSize) * length; // 熵值近似計算
 
-  if (score < 50) {
-    strength.textContent = "安全性評分：弱 🔴";
+  if (score < 40) {
+    strength.textContent = "Security Strength: Weak 🔴 / 安全性評分：弱";
     strength.style.color = "red";
-  } else if (score < 150) {
-    strength.textContent = "安全性評分：中 🟡";
+  } else if (score < 80) {
+    strength.textContent = "Security Strength: Medium 🟡 / 安全性評分：中";
     strength.style.color = "orange";
   } else {
-    strength.textContent = "安全性評分：強 🟢";
+    strength.textContent = "Security Strength: Strong 🟢 / 安全性評分：強";
     strength.style.color = "green";
   }
 }
@@ -123,6 +125,10 @@ function generate() {
 
 function copyPasswords() {
   const text = document.getElementById("output").innerText;
+  if (!text) {
+    alert("沒有密碼可複製！");
+    return;
+  }
   navigator.clipboard.writeText(text).then(() => {
     alert("已複製到剪貼簿！");
   });
@@ -130,4 +136,34 @@ function copyPasswords() {
 
 function downloadPasswords() {
   const text = document.getElementById("output").innerText;
-  const blob
+  if (!text) {
+    alert("沒有密碼可下載！");
+    return;
+  }
+  const blob = new Blob([text], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "passwords.txt";
+  link.click();
+}
+
+function resetAll() {
+  document.getElementById("length").value = 12;
+  document.getElementById("count").value = 5;
+  document.getElementById("numbers").checked = false;
+  document.getElementById("uppercase").checked = false;
+  document.getElementById("lowercase").checked = false;
+  document.getElementById("symbols").checked = false;
+  document.getElementById("special").checked = false;
+  document.getElementById("custom").value = "";
+  document.getElementById("shuffle").checked = false;
+  document.getElementById("excludeDefault").checked = true;
+  document.getElementById("excludeCustom").value = "";
+  document.getElementById("prefix").value = "";
+  document.getElementById("suffix").value = "";
+  document.getElementById("output").innerHTML = "";
+  document.getElementById("validation").textContent = "";
+  document.getElementById("suggestion").textContent = "";
+  document.getElementById("strength").textContent = "";
+  updatePreview();
+}
