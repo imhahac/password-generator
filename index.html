@@ -1,76 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Password Generator</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Preload fonts if possible, or use system fonts for speed -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
 
   <div class="app-container">
     <header>
-      <h1>Password Generator</h1>
-      <div class="subtitle">Secure, Random, Customizable</div>
+      <div class="top-controls">
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle Dark Mode" title="Toggle Dark Mode">🌙</button>
+        <button id="langToggle" class="text-btn" aria-label="Switch Language" title="Switch Language">中文</button>
+      </div>
+      <h1 data-i18n="title">Password Generator</h1>
+      <div class="subtitle" data-i18n="subtitle">Secure, Random, Customizable</div>
     </header>
+
+    <!-- Mode Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="password" data-i18n="tabPassword">Password</button>
+      <button class="tab-btn" data-tab="passphrase" data-i18n="tabPassphrase">Passphrase</button>
+    </div>
 
     <div class="main-content">
       <!-- Settings Column -->
       <div class="settings-col">
-        <fieldset>
-          <legend>Basic Settings</legend>
-          <div class="control-group">
-            <label><input type="checkbox" id="numbers" checked onchange="updatePreview()"> Numbers (0-9)</label>
-            <label><input type="checkbox" id="uppercase" checked onchange="updatePreview()"> Uppercase (A-Z)</label>
-            <label><input type="checkbox" id="lowercase" checked onchange="updatePreview()"> Lowercase (a-z)</label>
-            <label><input type="checkbox" id="symbols" onchange="updatePreview()"> Common Symbols (!@#$%^&*)</label>
-            <label><input type="checkbox" id="special" onchange="updatePreview()"> Special Symbols (+-,.:;=~?`'"|\<>
-                ()[]{})</label>
-          </div>
 
-          <div class="control-group">
-            <label for="custom">Custom Characters</label>
-            <input type="text" id="custom" placeholder="e.g., @#$" oninput="updatePreview()">
-          </div>
-        </fieldset>
+        <!-- Password Settings -->
+        <div id="settings-password" class="settings-panel active">
+          <fieldset>
+            <legend data-i18n="basicSettings">Basic Settings</legend>
+            <div class="control-group">
+              <label><input type="checkbox" id="numbers" checked onchange="updatePreview()"> <span
+                  data-i18n="optNumbers">Numbers (0-9)</span></label>
+              <label><input type="checkbox" id="uppercase" checked onchange="updatePreview()"> <span
+                  data-i18n="optUppercase">Uppercase (A-Z)</span></label>
+              <label><input type="checkbox" id="lowercase" checked onchange="updatePreview()"> <span
+                  data-i18n="optLowercase">Lowercase (a-z)</span></label>
+              <label><input type="checkbox" id="symbols" onchange="updatePreview()"> <span data-i18n="optSymbols">Common
+                  Symbols (!@#$%^&*)</span></label>
+              <label><input type="checkbox" id="special" onchange="updatePreview()"> <span
+                  data-i18n="optSpecial">Special Symbols (+-,.:;=~?`'"|\<>()[]{})</span></label>
+            </div>
 
-        <fieldset>
-          <legend>Advanced Settings</legend>
-          <div class="control-group">
-            <label><input type="checkbox" id="shuffle"> Shuffle Result</label>
-            <label><input type="checkbox" id="excludeDefault" checked> Exclude Similar (i l 1 O 0 etc.)</label>
-          </div>
-          <div class="control-group">
-            <label for="excludeCustom">Exclude Characters</label>
-            <input type="text" id="excludeCustom" placeholder="e.g., abc" oninput="updatePreview()">
-          </div>
-          <div class="control-group">
-            <label for="prefix">Fixed Prefix</label>
-            <input type="text" id="prefix" maxlength="5" placeholder="Start with..." oninput="updatePreview()">
-          </div>
-          <div class="control-group">
-            <label for="suffix">Fixed Suffix</label>
-            <input type="text" id="suffix" placeholder="End with..." oninput="updatePreview()">
-          </div>
-        </fieldset>
+            <div class="control-group">
+              <label for="custom" data-i18n="lblCustom">Custom Characters</label>
+              <input type="text" id="custom" data-placeholder="phCustom" placeholder="e.g., @#$"
+                oninput="updatePreview()">
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend data-i18n="advancedSettings">Advanced Settings</legend>
+            <div class="control-group">
+              <label><input type="checkbox" id="shuffle"> <span data-i18n="optShuffle">Shuffle Result</span></label>
+              <label><input type="checkbox" id="excludeDefault" checked> <span data-i18n="optExcludeSimilar">Exclude
+                  Similar (i l 1 O 0 etc.)</span></label>
+            </div>
+            <div class="control-group">
+              <label for="excludeCustom" data-i18n="lblExclude">Exclude Characters</label>
+              <input type="text" id="excludeCustom" data-placeholder="phExclude" placeholder="e.g., abc"
+                oninput="updatePreview()">
+            </div>
+            <div class="control-group">
+              <label for="prefix" data-i18n="lblPrefix">Fixed Prefix</label>
+              <input type="text" id="prefix" maxlength="5" data-placeholder="phPrefix" placeholder="Start with..."
+                oninput="updatePreview()">
+            </div>
+            <div class="control-group">
+              <label for="suffix" data-i18n="lblSuffix">Fixed Suffix</label>
+              <input type="text" id="suffix" data-placeholder="phSuffix" placeholder="End with..."
+                oninput="updatePreview()">
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Passphrase Settings -->
+        <div id="settings-passphrase" class="settings-panel" style="display:none;">
+          <fieldset>
+            <legend data-i18n="passphraseSettings">Passphrase Settings</legend>
+            <div class="control-group">
+              <label for="separator" data-i18n="lblSeparator">Separator</label>
+              <select id="separator">
+                <option value="-">- (Hyphen)</option>
+                <option value=" "> (Space)</option>
+                <option value=".">. (Dot)</option>
+                <option value="_">_ (Underscore)</option>
+                <option value="random" data-i18n="optRandomNum">Random Number</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label><input type="checkbox" id="capitalize" checked> <span data-i18n="optCapitalize">Capitalize
+                  Words</span></label>
+              <label><input type="checkbox" id="includeNumber" checked> <span data-i18n="optIncludeNumber">Include
+                  Number</span></label>
+            </div>
+          </fieldset>
+        </div>
+
       </div>
 
       <!-- Logic Column -->
       <div class="logic-col">
         <fieldset>
-          <legend>Generation Rules</legend>
-          <div class="control-group">
-            <label for="length">Password Length: <span id="lengthVal">12</span></label>
+          <legend data-i18n="genRules">Generation Rules</legend>
+
+          <!-- Shared Logic: Length / Word Count -->
+          <div class="control-group" id="length-control">
+            <label for="length"><span id="lengthLabel" data-i18n="lblLength">Password Length</span>: <span
+                id="lengthVal">12</span></label>
             <div class="range-wrap">
               <input type="range" id="lengthRange" min="4" max="64" value="12" oninput="syncLength('range')">
               <input type="number" id="length" value="12" min="4" max="64" oninput="syncLength('number')">
             </div>
           </div>
+
+          <div class="control-group" id="words-control" style="display:none;">
+            <label><span data-i18n="lblWordCount">Word Count</span>: <span id="wordCountVal">3</span></label>
+            <div class="range-wrap">
+              <input type="range" id="wordRange" min="2" max="10" value="3" step="1">
+              <input type="number" id="wordCount" value="3" min="2" max="10">
+            </div>
+          </div>
+
           <div class="control-group">
-            <label for="count">Quantity to Generate</label>
+            <label for="count" data-i18n="lblQuantity">Quantity to Generate</label>
             <input type="number" id="count" value="5" min="1" max="20" style="width: 100px;">
           </div>
         </fieldset>
@@ -94,21 +153,45 @@
       <!-- Actions Row -->
       <div class="actions">
         <button class="btn-generate" onclick="generate()">
-          <span>⚡ Generate</span>
+          <span data-i18n="btnGenerate">⚡ Generate</span>
         </button>
         <button class="btn-copy" onclick="copyPasswords()">
-          <span>📋 Copy All</span>
+          <span data-i18n="btnCopyAll">📋 Copy All</span>
         </button>
         <button class="btn-download" onclick="downloadPasswords()">
-          <span>💾 Download</span>
+          <span data-i18n="btnDownload">💾 Download</span>
         </button>
-        <button class="btn-reset" onclick="resetAll()">Reset</button>
+        <button class="btn-reset" onclick="resetAll()" data-i18n="btnReset">Reset</button>
       </div>
 
       <!-- Results Area -->
       <div class="results-area">
         <div id="output" class="output-grid"></div>
       </div>
+
+      <!-- History Area -->
+      <div class="history-area" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="margin:0;" data-i18n="hdrHistory">History</h3>
+          <button class="btn-reset" onclick="clearHistory()" data-i18n="btnClearHistory"
+            style="font-size: 0.9rem;">Clear History</button>
+        </div>
+        <div id="historyList" class="history-list">
+          <!-- History items will go here -->
+          <div class="empty-history" data-i18n="msgNoHistory">No history yet.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- QR Modal -->
+  <div id="qrModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h3 data-i18n="hdrQRCode">QR Code</h3>
+      <div id="qrcode"></div>
+      <p id="qrText" style="word-break: break-all; margin-top: 1rem; color: var(--text-muted);"></p>
     </div>
   </div>
 
